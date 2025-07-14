@@ -1,0 +1,206 @@
+body {
+  margin: 0;
+  background: #1e272e;
+  color: #f5f6fa;
+  font-family: 'Courier New', Courier, monospace;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+  flex-direction: column;
+}
+
+h1 {
+  font-size: 4rem;
+  text-shadow: 2px 2px 6px #ffa502;
+  margin: 0.3em 0 0.2em 0;
+}
+
+h2 {
+  font-size: 2rem;
+  margin: 0 0 1em 0;
+  text-shadow: 1px 1px 4px #ff7f50;
+}
+
+#startScreen, #winScreen {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #0f1c2e;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 10;
+}
+
+#playBtn {
+  font-size: 2.5rem;
+  padding: 20px 50px;
+  background: linear-gradient(135deg, #ff6f00, #ff8f00);
+  border: none;
+  border-radius: 25px;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 6px 10px rgba(255, 143, 0, 0.7);
+  cursor: pointer;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
+  margin-top: 30px;
+}
+
+#playBtn:hover {
+  background: linear-gradient(135deg, #ff8f00, #ffaa00);
+  box-shadow: 0 8px 14px rgba(255, 170, 0, 0.9);
+}
+
+canvas {
+  background: #16222a;
+  border: 3px solid #ffa502;
+  border-radius: 12px;
+  display: block;
+  margin-top: 10px;
+
+  
+}
+
+
+#touchControls {
+  position: fixed;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 15px;
+  z-index: 20;
+}
+
+.touch-btn {
+  font-size: 2rem;
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: #ff6f00cc;
+  border: none;
+  color: white;
+  box-shadow: 0 4px 8px #ff8f0033;
+  user-select: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.touch-btn:active {
+  background: #ffa500cc;
+}
+
+#scoreboard {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-family: monospace;
+  font-size: 18px;
+  color: #fff;
+  text-shadow: 1px 1px 2px #000;
+}
+
+.hearts {
+  font-size: 24px;
+  color: #ff4757;
+  margin-left: 10px;
+  user-select: none;
+}
+
+/* Avviso danno rosso flash */
+#damageFlash {
+  pointer-events: none;
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255, 0, 0, 0.5);
+  z-index: 1000;
+  display: none;
+  animation: flashRed 0.4s ease forwards;
+}
+
+
+#gameOverScreen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  color: #fff;
+  font-family: 'Press Start 2P', cursive;
+  z-index: 999;
+}
+
+#gameOverScreen.hidden {
+  display: none;
+}
+
+.game-over-content {
+  text-align: center;
+}
+
+#gameOverScreen button {
+  margin-top: 20px;
+  padding: 12px 24px;
+  background: linear-gradient(to bottom, #ff9933, #cc6600);
+  color: #fff;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 14px;
+  border: 3px solid #663300;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2), inset 0 0 5px #fff;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+#gameOverScreen button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px #ffcc66, inset 0 0 5px #fff;
+}
+
+
+#gameboy-controls {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  z-index: 20;
+}
+
+#gameboy-controls .row {
+  display: flex;
+  gap: 10px;
+}
+
+#gameboy-controls button {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #888, #333);
+  border: 2px solid #222;
+  box-shadow: 2px 2px 4px #000a;
+  font-size: 24px;
+  color: white;
+  font-weight: bold;
+  transition: transform 0.1s ease;
+}
+
+#gameboy-controls button:active {
+  transform: scale(0.95);
+  background: radial-gradient(circle at 30% 30%, #aaa, #444);
+}
+
+
+@keyframes flashRed {
+  0% {opacity: 0.7;}
+  100% {opacity: 0;}
+}

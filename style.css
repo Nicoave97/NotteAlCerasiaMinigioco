@@ -65,15 +65,6 @@ canvas {
 }
 
 
-#touchControls {
-  position: fixed;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 15px;
-  z-index: 20;
-}
 
 .touch-btn {
   font-size: 2rem;
@@ -164,42 +155,53 @@ canvas {
   box-shadow: 0 0 15px #ffcc66, inset 0 0 5px #fff;
 }
 
-
-#gameboy-controls {
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
+body {
+  margin: 0;
+  background: #1e272e;
+  color: #f5f6fa;
+  font-family: 'Courier New', Courier, monospace;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  z-index: 20;
+  overflow: hidden;
+  height: 100dvh;
 }
 
-#gameboy-controls .row {
-  display: flex;
-  gap: 10px;
+canvas {
+  width: 100%;
+  max-width: 800px;
+  height: auto;
+  aspect-ratio: 2 / 1;
+  background: #16222a;
+  border: 3px solid #ffa502;
+  border-radius: 12px;
+  display: block;
+  margin-top: 10px;
 }
 
-#gameboy-controls button {
+#joystick-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 120px;
+  height: 120px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  z-index: 999;
+  touch-action: none;
+}
+
+#joystick {
   width: 60px;
   height: 60px;
+  background: radial-gradient(circle at 30% 30%, #ff8f00, #cc6600);
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #888, #333);
-  border: 2px solid #222;
-  box-shadow: 2px 2px 4px #000a;
-  font-size: 24px;
-  color: white;
-  font-weight: bold;
-  transition: transform 0.1s ease;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  touch-action: none;
 }
-
-#gameboy-controls button:active {
-  transform: scale(0.95);
-  background: radial-gradient(circle at 30% 30%, #aaa, #444);
-}
-
-
 @keyframes flashRed {
   0% {opacity: 0.7;}
   100% {opacity: 0;}

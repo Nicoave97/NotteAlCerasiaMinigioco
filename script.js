@@ -1,17 +1,62 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
+// Ridimensiona canvas in base allo schermo
+function resizeCanvas() {
+  const width = window.innerWidth > 800 ? 800 : window.innerWidth - 20;
+  canvas.width = width;
+  canvas.height = width / 2;
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+// Joystick analogico
+let joystick = {
+  dragging: false,
+  startX: 0,
+  startY: 0,
+  deltaX: 0,
+  deltaY: 0
+};
+
+const joystickEl = document.getElementById("joystick");
+joystickEl.addEventListener("touchstart", e => {
+  const touch = e.touches[0];
+  joystick.dragging = true;
+  joystick.startX = touch.clientX;
+  joystick.startY = touch.clientY;
+});
+
+window.addEventListener("touchmove", e => {
+  if (!joystick.dragging) return;
+  const touch = e.touches[0];
+  joystick.deltaX = touch.clientX - joystick.startX;
+  joystick.deltaY = touch.clientY - joystick.startY;
+
+  const distance = Math.sqrt(joystick.deltaX ** 2 + joystick.deltaY ** 2);
+  const maxDistance = 40;
+  if (distance > maxDistance) {
+    const angle = Math.atan2(joystick.deltaY, joystick.deltaX);
+    joystick.deltaX = Math.cos(angle) * maxDistance;
+    joystick.deltaY = Math.sin(angle) * maxDistance;
+  }
+
+  joystickEl.style.transform = `translate(${joystick.deltaX}px, ${joystick.deltaY}px)`;
+});
+
+window.addEventListener("touchend", () => {
+  joystick.dragging = false;
+  joystick.deltaX = 0;
+  joystick.deltaY = 0;
+  joystickEl.style.transform = `translate(-50%, -50%)`;
+});
+
 const startScreen = document.getElementById("startScreen");
 const winScreen = document.getElementById("winScreen");
 const playBtn = document.getElementById("playBtn");
 const restartBtn = document.getElementById("restartBtn");
 
-const upBtn = document.getElementById("upBtn");
-const downBtn = document.getElementById("downBtn");
-const leftBtn = document.getElementById("leftBtn");
-const rightBtn = document.getElementById("rightBtn");
-
-let player = { x: 50, y: 180, w: 50, h: 50, color: "yellow" };
+let player = { x: 50, y: 180, width: 50, height: 50 };
 let keys = {};
 let items = [];
 let fires = [];
@@ -19,13 +64,7 @@ let score = 0;
 let lives = 3;
 let collected = 0;
 let playing = false;
-// Variabili movimento
-let moveLeft = false, 
-moveRight = false, 
-moveUp = false, 
-moveDown = false;
-
-let gameTimer = 30; // seconds
+let gameTimer = 30;
 let timerInterval;
 
 const bonusEmojis = ["🍕", "🎧", "🍸"];
@@ -36,119 +75,77 @@ let soundEnabled = true;
 const logoImg = new Image();
 logoImg.src = "asset/image/logo.png";
 
-// Eventi Touch
-const addTouchControl = (id, directionVar) => {
-  const btn = document.getElementById(id);
-  btn.addEventListener("touchstart", e => {
-    e.preventDefault();
-    window[directionVar] = true;
-  });
-  btn.addEventListener("touchend", e => {
-    e.preventDefault();
-    window[directionVar] = false;
-  });
-};
-
-
-
-// --- Suoni ---
-function playSound(freqStart, freqEnd, duration = 0.3) {
+// Suoni
+function playSound(start, end, duration = 0.3) {
   try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const now = audioCtx.currentTime;
-
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
 
     osc.type = "triangle";
-    osc.frequency.setValueAtTime(freqStart, now);
+    osc.frequency.setValueAtTime(start, now);
     gain.gain.setValueAtTime(0.3, now);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
 
     osc.start(now);
-    osc.frequency.linearRampToValueAtTime(freqEnd, now + duration);
+    osc.frequency.linearRampToValueAtTime(end, now + duration);
     gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-
     osc.stop(now + duration);
-
-    osc.onended = () => audioCtx.close();
+    osc.onended = () => ctx.close();
   } catch (e) {}
 }
-
-function playPlaySound() {
-  if (!soundEnabled) return;
-  playSound(300, 600, 0.2);
-}
-
 function playBonusSound() {
-  if (!soundEnabled) return;
-  playSound(600, 900, 0.15);
+  if (soundEnabled) playSound(600, 900, 0.15);
 }
-
 function playFireHitSound() {
-  if (!soundEnabled) return;
-  playSound(150, 100, 0.5);
+  if (soundEnabled) playSound(150, 100, 0.5);
 }
-
 function playWinSound() {
   if (!soundEnabled) return;
-  // semplice melodia vittoria
   try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const now = audioCtx.currentTime;
-
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const now = ctx.currentTime;
     const notes = [660, 880, 990];
-    const gain = audioCtx.createGain();
-    gain.connect(audioCtx.destination);
+    const gain = ctx.createGain();
     gain.gain.setValueAtTime(0.3, now);
+    gain.connect(ctx.destination);
 
-    notes.forEach((freq, i) => {
-      const osc = audioCtx.createOscillator();
+    notes.forEach((f, i) => {
+      const osc = ctx.createOscillator();
       osc.type = "triangle";
-      osc.frequency.setValueAtTime(freq, now + i * 0.25);
+      osc.frequency.setValueAtTime(f, now + i * 0.25);
       osc.connect(gain);
       osc.start(now + i * 0.25);
       osc.stop(now + i * 0.25 + 0.2);
     });
 
-    setTimeout(() => audioCtx.close(), notes.length * 300);
+    setTimeout(() => ctx.close(), notes.length * 300);
   } catch (e) {}
 }
-
 function playLoseGameSound() {
   if (!soundEnabled) return;
   try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const now = audioCtx.currentTime;
-
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
     osc.type = "sawtooth";
     osc.frequency.setValueAtTime(200, now);
     gain.gain.setValueAtTime(0.3, now);
-
+    osc.connect(gain);
+    gain.connect(ctx.destination);
     osc.start(now);
     osc.frequency.exponentialRampToValueAtTime(100, now + 1);
     gain.gain.exponentialRampToValueAtTime(0.001, now + 1);
-
     osc.stop(now + 1);
-
-    osc.onended = () => {
-      audioCtx.close();
-    };
+    osc.onended = () => ctx.close();
   } catch (e) {}
 }
 
-// --- Funzioni gioco ---
+// Inizio gioco
 function startGame() {
-  playPlaySound();
-
   startScreen.style.display = "none";
   winScreen.style.display = "none";
 
@@ -157,7 +154,7 @@ function startGame() {
   lives = 3;
   collected = 0;
   player.x = 50;
-  player.y = 180;
+  player.y = canvas.height / 2 - player.height / 2;
   items = [];
   fires = [];
 
@@ -182,7 +179,7 @@ function startGame() {
 
 function spawnItem() {
   items.push({
-    x: 800 + Math.random() * 300,
+    x: canvas.width + Math.random() * 300,
     y: Math.random() * (canvas.height - 24),
     emoji: bonusEmojis[Math.floor(Math.random() * bonusEmojis.length)],
     speed: 2.5
@@ -191,7 +188,7 @@ function spawnItem() {
 
 function spawnFire() {
   fires.push({
-    x: 800 + Math.random() * 300,
+    x: canvas.width + Math.random() * 300,
     y: Math.random() * (canvas.height - 24),
     emoji: fireEmoji,
     speed: 2.5
@@ -200,28 +197,30 @@ function spawnFire() {
 
 function update() {
   if (!playing) return;
-
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Player movement
+  // Movimento con joystick
+  if (joystick.dragging) {
+    let speed = 0.12;
+    player.x += joystick.deltaX * speed;
+    player.y += joystick.deltaY * speed;
+  }
+
+  // Movimento da tastiera
   if (keys["ArrowUp"] && player.y > 0) player.y -= 3;
-  if (keys["ArrowDown"] && player.y + player.h < canvas.height) player.y += 3;
+  if (keys["ArrowDown"] && player.y + player.height < canvas.height) player.y += 3;
   if (keys["ArrowLeft"] && player.x > 0) player.x -= 3;
-  if (keys["ArrowRight"] && player.x + player.w < canvas.width) player.x += 3;
-  if (moveLeft && player.x > 0) player.x -= 5;
-  if (moveRight && player.x < canvas.width - player.width) player.x += 5;
+  if (keys["ArrowRight"] && player.x + player.width < canvas.width) player.x += 3;
 
+  player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+  player.y = Math.max(0, Math.min(canvas.height - player.height, player.y));
 
-  // Draw player
+  // Disegna giocatore
   if (logoImg.complete) {
-  ctx.drawImage(logoImg, player.x, player.y, player.w, player.h);
-} else {
-  logoImg.onload = () => {
-    ctx.drawImage(logoImg, player.x, player.y, player.w, player.h);
-  };
-}
+    ctx.drawImage(logoImg, player.x, player.y, player.width, player.height);
+  }
 
-  // Draw & update items
+  // Oggetti bonus
   for (let i = items.length - 1; i >= 0; i--) {
     const item = items[i];
     ctx.font = "28px serif";
@@ -240,7 +239,7 @@ function update() {
     }
   }
 
-  // Draw & update fires
+  // Ostacoli
   for (let i = fires.length - 1; i >= 0; i--) {
     const fire = fires[i];
     ctx.font = "28px serif";
@@ -259,112 +258,66 @@ function update() {
     }
   }
 
-  // Scoreboard
+  // HUD
   ctx.fillStyle = "white";
-  ctx.font = "20px monospace";
-  ctx.fillText(`Punteggio: ${score} | `, 10, 30);
-
-  // Cuori vite
-  let hearts = "❤️".repeat(lives);
-  ctx.fillText(hearts, 180, 30);
-
-  // Timer
+  ctx.font = "18px monospace";
+  ctx.fillText(`Punteggio: ${score}`, 10, 30);
+  ctx.fillText("❤️".repeat(lives), 180, 30);
   ctx.fillText(`Tempo: ${gameTimer}s`, 320, 30);
 
   if (score >= 100) {
     playing = false;
     clearInterval(timerInterval);
     playWinSound();
-    setTimeout(() => {
-      winScreen.style.display = "flex";
-    }, 300);
+    setTimeout(() => winScreen.style.display = "flex", 300);
   }
 
-  if (lives <= 0) {
-  endGame();
-}
-
+  if (lives <= 0) endGame();
   requestAnimationFrame(update);
 }
 
-function checkCollision(rect1, rect2) {
+function checkCollision(r1, r2) {
   return (
-    rect1.x < rect2.x + 24 &&
-    rect1.x + rect1.w > rect2.x &&
-    rect1.y < rect2.y + 24 &&
-    rect1.y + rect1.h > rect2.y
+    r1.x < r2.x + 24 &&
+    r1.x + r1.width > r2.x &&
+    r1.y < r2.y + 24 &&
+    r1.y + r1.height > r2.y
   );
 }
 
-// Flash rosso danno
 function showDamageFlash() {
   if (document.getElementById("damageFlash")) return;
   const flash = document.createElement("div");
   flash.id = "damageFlash";
+  flash.style.position = "absolute";
+  flash.style.top = "0";
+  flash.style.left = "0";
+  flash.style.width = "100%";
+  flash.style.height = "100%";
+  flash.style.background = "rgba(255,0,0,0.5)";
+  flash.style.zIndex = "999";
   document.body.appendChild(flash);
-  flash.style.display = "block";
-  setTimeout(() => {
-    flash.style.display = "none";
-    document.body.removeChild(flash);
-  }, 400);
+  setTimeout(() => document.body.removeChild(flash), 400);
 }
 
-// Key handlers
-window.addEventListener("keydown", e => {
-  keys[e.key] = true;
-});
-window.addEventListener("keyup", e => {
-  keys[e.key] = false;
-});
+window.addEventListener("keydown", e => keys[e.key] = true);
+window.addEventListener("keyup", e => keys[e.key] = false);
 
 function endGame() {
-  gameRunning = false;
+  playing = false;
   document.getElementById("finalScoreText").innerText = `Hai totalizzato: ${score} punti`;
   document.getElementById("gameOverScreen").classList.remove("hidden");
-  cancelAnimationFrame(animationFrameId);
 }
 
 function restartGame() {
-  // Reset variabili
   score = 0;
   lives = 3;
   player.x = canvas.width / 2 - player.width / 2;
   items = [];
-  bombs = [];
-  gameRunning = true;
-
-  // Nasconde schermata Game Over
+  fires = [];
   document.getElementById("gameOverScreen").classList.add("hidden");
-
-  // Riavvia il gioco
   startGame();
 }
 
-// Touch buttons handlers
-upBtn.addEventListener("touchstart", () => (keys["ArrowUp"] = true));
-upBtn.addEventListener("touchend", () => (keys["ArrowUp"] = false));
-downBtn.addEventListener("touchstart", () => (keys["ArrowDown"] = true));
-downBtn.addEventListener("touchend", () => (keys["ArrowDown"] = false));
-leftBtn.addEventListener("touchstart", () => (keys["ArrowLeft"] = true));
-leftBtn.addEventListener("touchend", () => (keys["ArrowLeft"] = false));
-rightBtn.addEventListener("touchstart", () => (keys["ArrowRight"] = true));
-rightBtn.addEventListener("touchend", () => (keys["ArrowRight"] = false));
-
-// Button events
 playBtn.addEventListener("click", startGame);
 restartBtn.addEventListener("click", () => location.reload());
-
-// Gestione dei comandi touch
-document.getElementById("left-btn").addEventListener("touchstart", () => {
-  moveLeft = true;
-});
-document.getElementById("left-btn").addEventListener("touchend", () => {
-  moveLeft = false;
-});
-document.getElementById("right-btn").addEventListener("touchstart", () => {
-  moveRight = true;
-});
-document.getElementById("right-btn").addEventListener("touchend", () => {
-  moveRight = false;
-});
-

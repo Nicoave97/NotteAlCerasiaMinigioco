@@ -14,7 +14,7 @@
     <button id="playBtn">PLAY</button>
   </div>
 
-  <canvas id="gameCanvas" width="800" height="400"></canvas>
+  <canvas id="gameCanvas"></canvas>
 
   <div id="winScreen" class="screen" style="display:none; flex-direction: column;">
     <h1>Hai vinto! 🎉</h1>
@@ -23,36 +23,19 @@
     <button id="restartBtn">Rigioca</button>
   </div>
 
-  <div id="touchControls">
-    <button id="upBtn" class="touch-btn">⬆️</button>
-    <button id="leftBtn" class="touch-btn">⬅️</button>
-    <button id="downBtn" class="touch-btn">⬇️</button>
-    <button id="rightBtn" class="touch-btn">➡️</button>
-  </div>
-
   <div id="gameOverScreen" class="hidden">
-  <div class="game-over-content">
-    <h1>Game Over</h1>
-    <p id="finalScoreText">Hai totalizzato: 0 punti</p>
-    <button onclick="restartGame()">Riprova</button>
+    <div class="game-over-content">
+      <h1>Game Over</h1>
+      <p id="finalScoreText">Hai totalizzato: 0 punti</p>
+      <button onclick="restartGame()">Riprova</button>
+    </div>
   </div>
-</div>
 
-<!-- Controlli stile Game Boy -->
-<div id="gameboy-controls">
-  <div class="row">
-    <button id="up-btn">⬆️</button>
+  <!-- Joystick analogico -->
+  <div id="joystick-container">
+    <div id="joystick"></div>
   </div>
-  <div class="row">
-    <button id="left-btn">⬅️</button>
-    <button id="down-btn">⬇️</button>
-    <button id="right-btn">➡️</button>
-  </div>
-</div>
 
   <script src="script.js"></script>
 </body>
 </html>
-
-
-

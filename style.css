@@ -163,15 +163,15 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow: hidden;
-  height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-top: 20px; /* 👈 Spinge tutto più in basso */
+  min-height: 100dvh;
 }
 
 canvas {
   width: 100%;
   max-width: 800px;
-  height: auto;
-  aspect-ratio: 2 / 1;
   background: #16222a;
   border: 3px solid #ffa502;
   border-radius: 12px;
@@ -205,4 +205,30 @@ canvas {
 @keyframes flashRed {
   0% {opacity: 0.7;}
   100% {opacity: 0;}
+}
+
+#game-container {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+#hud {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  justify-content: space-between;
+  color: #fff;
+  font-size: 18px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+#hud span {
+  background: rgba(0, 0, 0, 0.5);
+  padding: 4px 8px;
+  border-radius: 4px;
 }

@@ -3,9 +3,12 @@ const ctx = canvas.getContext("2d");
 
 // Ridimensiona canvas in base allo schermo
 function resizeCanvas() {
-  const width = window.innerWidth > 800 ? 800 : window.innerWidth - 20;
+  const isMobile = window.innerWidth < 768;
+  const width = isMobile ? window.innerWidth - 20 : 800;
+  const height = isMobile ? window.innerHeight * 0.6 : 400;
+
   canvas.width = width;
-  canvas.height = width / 2;
+  canvas.height = height;
 }
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
@@ -66,6 +69,8 @@ let collected = 0;
 let playing = false;
 let gameTimer = 30;
 let timerInterval;
+
+
 
 const bonusEmojis = ["🍕", "🎧", "🍸"];
 const fireEmoji = "🔥";
@@ -259,11 +264,12 @@ function update() {
   }
 
   // HUD
-  ctx.fillStyle = "white";
-  ctx.font = "18px monospace";
-  ctx.fillText(`Punteggio: ${score}`, 10, 30);
-  ctx.fillText("❤️".repeat(lives), 180, 30);
-  ctx.fillText(`Tempo: ${gameTimer}s`, 320, 30);
+ ctx.fillStyle = "white";
+ctx.font = "18px monospace";
+
+ctx.fillText(`Punteggio: ${score}`, 10, 40);
+ctx.fillText("❤️".repeat(lives), 10, 65);
+ctx.fillText(`Tempo: ${gameTimer}s`, canvas.width - 140, 40);
 
   if (score >= 100) {
     playing = false;

@@ -12,14 +12,20 @@
     <h1>La Fenice</h1>
     <h2>Invito Interattivo</h2>
     <button id="playBtn">PLAY</button>
+    <button id="toggleSoundBtn">🔊 Suoni ON</button>
   </div>
+
+
 
   <canvas id="gameCanvas"></canvas>
 
   <div id="winScreen" class="screen" style="display:none; flex-direction: column;">
-    <h1>Hai vinto! 🎉</h1>
-    <p>Ti aspettiamo a "Una Notte al Cerasia 2.0"</p>
-    <p>Alle ore 22:00 presso via prova</p>
+    <h1>Complimenti , Hai Vinto! 🎉</h1>
+    <p id="finalScoreTextWin">Hai totalizzato: 0 punti</p>
+     <input type="text" id="playerName" placeholder="Il tuo nome..." />
+    <p>"Ti Aspettiamo al nostro Evento "Una Notte al cerasia 2.0"</p>
+    <p>dalle ore 22:00</p>
+    <p>Effettua uno screen e taggaci, o invialo alla nostra pagina instagram per scoprire se hai vinto l'omaggio snack&Bevanda </p>
     <button id="restartBtn">Rigioca</button>
   </div>
 

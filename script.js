@@ -1,11 +1,22 @@
 const canvas = document.getElementById("gameCanvas");
+
+//function resizeCanvasToScreen() {
+  //const containerWidth = Math.min(window.innerWidth, 800);
+  //canvas.width = containerWidth;
+  //canvas.height = containerWidth / 2; // mantieni proporzioni 2:1
+//}
+//window.addEventListener("resize", resizeCanvasToScreen);
+//resizeCanvasToScreen();
+
 const ctx = canvas.getContext("2d");
 
 // Ridimensiona canvas in base allo schermo
 function resizeCanvas() {
-  const isMobile = window.innerWidth < 768;
-  const width = isMobile ? window.innerWidth - 20 : 800;
-  const height = isMobile ? window.innerHeight * 0.6 : 400;
+  const isMobile = window.innerWidth < 950;
+  const padding = 20; // margine di sicurezza
+
+  const width = isMobile ? window.innerWidth - padding : 800;
+  const height = isMobile ? window.innerHeight - padding * 2 : 400;
 
   canvas.width = width;
   canvas.height = height;
@@ -21,6 +32,10 @@ let joystick = {
   deltaX: 0,
   deltaY: 0
 };
+
+ctx.strokeStyle = "#ffa502";
+ctx.lineWidth = 4;
+ctx.strokeRect(0, 0, canvas.width, canvas.height);
 
 const joystickEl = document.getElementById("joystick");
 joystickEl.addEventListener("touchstart", e => {
@@ -70,12 +85,26 @@ let playing = false;
 let gameTimer = 30;
 let timerInterval;
 
+let bombSpeed = 2;               // Velocità iniziale delle bombe
+let maxBombs = 6;                // Numero massimo di bombe all'inizio
+let difficultyTimer = 0;         // Per tenere traccia del tempo
+let difficultyInterval = 5000;  // Aumenta difficoltà ogni 5 secondi
 
 
 const bonusEmojis = ["🍕", "🎧", "🍸"];
 const fireEmoji = "🔥";
 
 let soundEnabled = true;
+
+const toggleSoundBtn = document.getElementById("toggleSoundBtn");
+
+toggleSoundBtn.addEventListener("click", () => {
+  // Inverte il valore della variabile: true → false, false → true
+  soundEnabled = !soundEnabled;
+
+  // Cambia il testo sul bottone in base allo stato
+  toggleSoundBtn.textContent = soundEnabled ? "🔊 Suoni ON" : "🔇 Suoni OFF";
+});
 
 const logoImg = new Image();
 logoImg.src = "asset/image/logo.png";
@@ -164,18 +193,22 @@ function startGame() {
   fires = [];
 
   for (let i = 0; i < 7; i++) spawnItem();
-  for (let i = 0; i < 7; i++) spawnFire();
+  for (let i = 0; i < 10; i++) spawnFire();
 
   gameTimer = 30;
   clearInterval(timerInterval);
   timerInterval = setInterval(() => {
     gameTimer--;
     if (gameTimer <= 0) {
-      clearInterval(timerInterval);
-      playing = false;
-      playLoseGameSound();
-      alert("Tempo scaduto! Hai perso!");
-      location.reload();
+ 
+     // playLoseGameSound();
+      //alert("Tempo scaduto! Partita Terminata!");
+      //location.reload();
+          playing = false;
+    clearInterval(timerInterval);
+    playWinSound();
+    setTimeout(() => winScreen.style.display = "flex", 300);
+    document.getElementById("finalScoreTextWin").innerText = `Hai totalizzato: ${score} punti`;
     }
   }, 1000);
 
@@ -196,7 +229,7 @@ function spawnFire() {
     x: canvas.width + Math.random() * 300,
     y: Math.random() * (canvas.height - 24),
     emoji: fireEmoji,
-    speed: 2.5
+    speed: 3.5
   });
 }
 
@@ -206,7 +239,7 @@ function update() {
 
   // Movimento con joystick
   if (joystick.dragging) {
-    let speed = 0.12;
+    let speed = 0.10;
     player.x += joystick.deltaX * speed;
     player.y += joystick.deltaY * speed;
   }
@@ -242,6 +275,9 @@ function update() {
       items.splice(i, 1);
       spawnItem();
     }
+
+
+
   }
 
   // Ostacoli
@@ -264,14 +300,15 @@ function update() {
   }
 
   // HUD
- ctx.fillStyle = "white";
+ctx.fillStyle = "white";
 ctx.font = "18px monospace";
+ctx.fillText(`Punteggio: ${score}`, 10, 30);
+ctx.fillText("❤️".repeat(lives), 10, 60);
+ctx.fillText(`Tempo: ${gameTimer}s`, canvas.width - 120, 30);
 
-ctx.fillText(`Punteggio: ${score}`, 10, 40);
-ctx.fillText("❤️".repeat(lives), 10, 65);
-ctx.fillText(`Tempo: ${gameTimer}s`, canvas.width - 140, 40);
 
-  if (score >= 100) {
+
+  if (score >= 10000 ) {
     playing = false;
     clearInterval(timerInterval);
     playWinSound();
@@ -279,8 +316,25 @@ ctx.fillText(`Tempo: ${gameTimer}s`, canvas.width - 140, 40);
   }
 
   if (lives <= 0) endGame();
+
+if (Date.now() - difficultyTimer > difficultyInterval) {
+  bombSpeed += 0.5; // Bombe più veloci
+  fires.forEach(fire => fire.speed = bombSpeed);
+
+  if (fires.length < maxBombs) {
+    fires.push({
+      x: canvas.width + Math.random() * 300,
+      y: Math.random() * (canvas.height - 24),
+      emoji: fireEmoji,
+      speed: bombSpeed
+    });
+  }
+
+  difficultyTimer = Date.now(); // Reset timer
+}
   requestAnimationFrame(update);
 }
+
 
 function checkCollision(r1, r2) {
   return (
@@ -316,14 +370,16 @@ function endGame() {
 }
 
 function restartGame() {
-  score = 0;
-  lives = 3;
-  player.x = canvas.width / 2 - player.width / 2;
-  items = [];
-  fires = [];
   document.getElementById("gameOverScreen").classList.add("hidden");
   startGame();
 }
 
 playBtn.addEventListener("click", startGame);
 restartBtn.addEventListener("click", () => location.reload());
+
+// Impedisce lo scroll quando tocchi il joystick
+document.body.addEventListener("touchstart", (e) => {
+  if (e.target.closest("#joystick-container")) {
+    e.preventDefault(); // blocca il comportamento di default (es: scroll)
+  }
+}, { passive: false });

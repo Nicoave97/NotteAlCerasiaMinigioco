@@ -1,16 +1,19 @@
-body {
+/* ---------- RESET BASE ---------- */
+html, body {
   margin: 0;
+  padding: 0;
+  height: 100%;
   background: #1e272e;
   color: #f5f6fa;
   font-family: 'Courier New', Courier, monospace;
+  overflow: hidden;                 /* BLOCCA SCROLL BROWSER */
+  touch-action: none;              /* DISATTIVA GESTI TOUCH NATIVI (pinch, scroll) */
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  overflow: hidden;
   flex-direction: column;
+  align-items: center;
 }
 
+/* ---------- TESTI ---------- */
 h1 {
   font-size: 4rem;
   text-shadow: 2px 2px 6px #ffa502;
@@ -23,17 +26,7 @@ h2 {
   text-shadow: 1px 1px 4px #ff7f50;
 }
 
-#startScreen, #winScreen {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: #0f1c2e;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  z-index: 10;
-}
-
+/* ---------- PULSANTE PLAY ---------- */
 #playBtn {
   font-size: 2.5rem;
   padding: 20px 50px;
@@ -54,64 +47,30 @@ h2 {
   box-shadow: 0 8px 14px rgba(255, 170, 0, 0.9);
 }
 
+/* ---------- CANVAS / CAMPO DI GIOCO ---------- */
 canvas {
-  background: #16222a;
-  border: 3px solid #ffa502;
-  border-radius: 12px;
   display: block;
-  margin-top: 10px;
-
-  
-}
-
-
-
-.touch-btn {
-  font-size: 2rem;
-  padding: 12px 18px;
+  background: #16222a;
+  border: 4px solid #ffa502;
   border-radius: 12px;
-  background: #ff6f00cc;
-  border: none;
-  color: white;
-  box-shadow: 0 4px 8px #ff8f0033;
-  user-select: none;
-  cursor: pointer;
-  transition: background 0.2s ease;
+  margin: 20px auto;
+  box-sizing: border-box;
 }
 
-.touch-btn:active {
-  background: #ffa500cc;
-}
-
-#scoreboard {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  font-family: monospace;
-  font-size: 18px;
-  color: #fff;
-  text-shadow: 1px 1px 2px #000;
-}
-
-.hearts {
-  font-size: 24px;
-  color: #ff4757;
-  margin-left: 10px;
-  user-select: none;
-}
-
-/* Avviso danno rosso flash */
-#damageFlash {
-  pointer-events: none;
+/* ---------- SCHERMATE FULLSCREEN (START / WIN) ---------- */
+#startScreen,
+#winScreen {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(255, 0, 0, 0.5);
-  z-index: 1000;
-  display: none;
-  animation: flashRed 0.4s ease forwards;
+  background: #0f1c2e;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 10;
 }
 
-
+/* ---------- SCHERMATA GAME OVER ---------- */
 #gameOverScreen {
   position: absolute;
   top: 0;
@@ -155,30 +114,23 @@ canvas {
   box-shadow: 0 0 15px #ffcc66, inset 0 0 5px #fff;
 }
 
-body {
-  margin: 0;
-  background: #1e272e;
-  color: #f5f6fa;
-  font-family: 'Courier New', Courier, monospace;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  overflow-x: hidden;
-  overflow-y: auto;
-  padding-top: 20px; /* 👈 Spinge tutto più in basso */
-  min-height: 100dvh;
+/* ---------- EFFETTO DANNO FLASH ---------- */
+#damageFlash {
+  pointer-events: none;
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255, 0, 0, 0.5);
+  z-index: 1000;
+  display: none;
+  animation: flashRed 0.4s ease forwards;
 }
 
-canvas {
-  width: 100%;
-  max-width: 800px;
-  background: #16222a;
-  border: 3px solid #ffa502;
-  border-radius: 12px;
-  display: block;
-  margin-top: 10px;
+@keyframes flashRed {
+  0% {opacity: 0.7;}
+  100% {opacity: 0;}
 }
 
+/* ---------- JOYSTICK ANALOGICO ---------- */
 #joystick-container {
   position: fixed;
   bottom: 20px;
@@ -202,33 +154,48 @@ canvas {
   transform: translate(-50%, -50%);
   touch-action: none;
 }
-@keyframes flashRed {
-  0% {opacity: 0.7;}
-  100% {opacity: 0;}
+
+/* ---------- PULSANTI TOUCH (se riattivi frecce) ---------- */
+.touch-btn {
+  font-size: 2rem;
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: #ff6f00cc;
+  border: none;
+  color: white;
+  box-shadow: 0 4px 8px #ff8f0033;
+  user-select: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
 }
 
-#game-container {
-  position: relative;
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
+.touch-btn:active {
+  background: #ffa500cc;
 }
 
-#hud {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  right: 10px;
-  display: flex;
-  justify-content: space-between;
-  color: #fff;
-  font-size: 18px;
-  pointer-events: none;
-  z-index: 10;
+#playerName {
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 2px solid #ffa502;
+  width: 60%;
+  max-width: 300px;
+  margin-top: 10px;
 }
 
-#hud span {
-  background: rgba(0, 0, 0, 0.5);
-  padding: 4px 8px;
-  border-radius: 4px;
+#toggleSoundBtn {
+  margin-top: 20px;
+  font-size: 1.5rem;
+  padding: 10px 30px;
+  background: #57606f;
+  border: none;
+  border-radius: 18px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+#toggleSoundBtn:hover {
+  background: #747d8c;
 }

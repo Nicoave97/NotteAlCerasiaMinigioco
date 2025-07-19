@@ -80,13 +80,14 @@ let items = [];
 let fires = [];
 let score = 0;
 let lives = 3;
+ let hearts = [];  // Array per vite bonus
 let collected = 0;
 let playing = false;
 let gameTimer = 30;
 let timerInterval;
 
 let bombSpeed = 2;               // Velocità iniziale delle bombe
-let maxBombs = 6;                // Numero massimo di bombe all'inizio
+let maxBombs = 5;                // Numero massimo di bombe all'inizio
 let difficultyTimer = 0;         // Per tenere traccia del tempo
 let difficultyInterval = 5000;  // Aumenta difficoltà ogni 5 secondi
 
@@ -192,6 +193,8 @@ function startGame() {
   items = [];
   fires = [];
 
+ 
+
   for (let i = 0; i < 7; i++) spawnItem();
   for (let i = 0; i < 10; i++) spawnFire();
 
@@ -212,6 +215,9 @@ function startGame() {
     }
   }, 1000);
 
+  setInterval(() => {
+  if (playing) spawnHeart();
+}, 5000); // ogni 5 secondi
   requestAnimationFrame(update);
 }
 
@@ -230,6 +236,15 @@ function spawnFire() {
     y: Math.random() * (canvas.height - 24),
     emoji: fireEmoji,
     speed: 3.5
+  });
+}
+
+function spawnHeart() {
+  hearts.push({
+    x: canvas.width + Math.random() * 300,
+    y: Math.random() * (canvas.height - 24),
+    emoji: "💖",
+    speed: 2
   });
 }
 
@@ -299,6 +314,8 @@ function update() {
     }
   }
 
+  
+
   // HUD
 ctx.font = "18px monospace";
 
@@ -341,6 +358,22 @@ if (Date.now() - difficultyTimer > difficultyInterval) {
   }
 
   difficultyTimer = Date.now(); // Reset timer
+}
+
+// Vite bonus 💖
+for (let i = hearts.length - 1; i >= 0; i--) {
+  const heart = hearts[i];
+  ctx.font = "28px serif";
+  ctx.fillText(heart.emoji, heart.x, heart.y + 24);
+  heart.x -= heart.speed;
+
+  if (checkCollision(player, heart)) {
+    if (lives < 5) lives++;  // limite massimo 5
+    playBonusSound(); // riutilizziamo il suono
+    hearts.splice(i, 1);
+  } else if (heart.x < -30) {
+    hearts.splice(i, 1);
+  }
 }
   requestAnimationFrame(update);
 }

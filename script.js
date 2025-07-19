@@ -300,12 +300,22 @@ function update() {
   }
 
   // HUD
-ctx.fillStyle = "white";
 ctx.font = "18px monospace";
-ctx.fillText(`Punteggio: ${score}`, 10, 30);
-ctx.fillText("❤️".repeat(lives), 10, 60);
-ctx.fillText(`Tempo: ${gameTimer}s`, canvas.width - 120, 30);
 
+// PUNTEGGIO
+ctx.fillStyle = "white";
+ctx.fillText(`Punteggio: ${score}`, 10, 30);
+
+// VITE
+ctx.fillText("❤️".repeat(lives), 10, 60);
+
+// TIMER (diventa rosso se <=10 secondi)
+if (gameTimer <= 10) {
+  ctx.fillStyle = (gameTimer % 2 === 0) ? "red" : "orange"; // lampeggia tra rosso/arancione
+} else {
+  ctx.fillStyle = "white";
+}
+ctx.fillText(`Tempo: ${gameTimer}s`, canvas.width - 120, 30);
 
 
   if (score >= 10000 ) {

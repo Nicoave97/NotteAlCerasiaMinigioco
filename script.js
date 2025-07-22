@@ -85,6 +85,7 @@ let collected = 0;
 let playing = false;
 let gameTimer = 30;
 let timerInterval;
+let nomeGiocatore = '';
 
 let bombSpeed = 2;               // Velocità iniziale delle bombe
 let maxBombs = 5;                // Numero massimo di bombe all'inizio
@@ -192,6 +193,23 @@ function startGame() {
   player.y = canvas.height / 2 - player.height / 2;
   items = [];
   fires = [];
+
+    const input = document.getElementById("playerName");
+  const nome = input.value.trim();
+
+  if (nome === "") {
+    alert("Per favore, inserisci il tuo nome prima di iniziare.");
+      document.getElementById("startScreen").style.display = "block";
+      document.getElementById("gameCanvas").style.display = "block"; // se usi un canvas
+    return;
+  }
+
+  nomeGiocatore = nome;
+
+  // Nascondi schermata iniziale, mostra il canvas o avvia il gioco
+  //document.getElementById("startScreen").style.display = "none";
+  //document.getElementById("gameCanvas").style.display = "block"; // se usi un canvas
+  //startLoop(); // o avvia il gioco
 
  
 
@@ -410,7 +428,10 @@ function endGame() {
   playing = false;
   document.getElementById("finalScoreText").innerText = `Hai totalizzato: ${score} punti`;
   document.getElementById("gameOverScreen").classList.remove("hidden");
- inviaPunteggioAGoogleSheet("Nicola", 800);
+  // Quando finisce il gioco
+let nome = nomeGiocatore
+inviaPunteggio(nome, score); // punteggio è la tua variabile
+
 
 }
 
@@ -429,16 +450,24 @@ document.body.addEventListener("touchstart", (e) => {
   }
 }, { passive: false });
 
-function inviaPunteggioAGoogleSheet(nome, punteggio) {
-  fetch('https://script.google.com/macros/s/AKfycbzFjtvApeba707ISDyUYIQ4C3DgXfeWAsN55HoAnMT6ob9ay6MOhFHFR3m34iY4enc/exec', {
-    method: 'POST',
-    mode: 'cors',
+function inviaPunteggio(nomeUtente, punteggio) {
+  fetch("https://688002e1f1dcae717b60df69.mockapi.io/scores", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json'
+      "Content-Type": "application/json"
     },
-    body: JSON.stringify({ nome, punteggio })
+    body: JSON.stringify({
+      name: nomeUtente,
+      score: punteggio,
+      createdAt: new Date().toISOString() // data in formato ISO
+    })
   })
-  .then(r => r.json())
-  .then(d => console.log("✅ Punteggio salvato:", d))
-  .catch(e => console.error("❌ Errore:", e));
+  .then(res => res.json())
+  .then(data => {
+    console.log("✅ Punteggio salvato:", data);
+  })
+  .catch(error => {
+    console.error("❌ Errore nel salvataggio:", error);
+  });
 }
+

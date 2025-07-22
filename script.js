@@ -410,6 +410,8 @@ function endGame() {
   playing = false;
   document.getElementById("finalScoreText").innerText = `Hai totalizzato: ${score} punti`;
   document.getElementById("gameOverScreen").classList.remove("hidden");
+ inviaPunteggioAGoogleSheet("Nicola", 800);
+
 }
 
 function restartGame() {
@@ -426,3 +428,17 @@ document.body.addEventListener("touchstart", (e) => {
     e.preventDefault(); // blocca il comportamento di default (es: scroll)
   }
 }, { passive: false });
+
+function inviaPunteggioAGoogleSheet(nome, punteggio) {
+  fetch('https://script.google.com/macros/s/AKfycbzFjtvApeba707ISDyUYIQ4C3DgXfeWAsN55HoAnMT6ob9ay6MOhFHFR3m34iY4enc/exec', {
+    method: 'POST',
+    mode: 'cors',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ nome, punteggio })
+  })
+  .then(r => r.json())
+  .then(d => console.log("✅ Punteggio salvato:", d))
+  .catch(e => console.error("❌ Errore:", e));
+}

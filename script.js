@@ -228,17 +228,11 @@ function startGame() {
   clearInterval(timerInterval);
   timerInterval = setInterval(() => {
     gameTimer--;
-    if (gameTimer <= 0) {
- 
-     // playLoseGameSound();
-      //alert("Tempo scaduto! Partita Terminata!");
-      //location.reload();
-          playing = false;
-    clearInterval(timerInterval);
-    playWinSound();
-    setTimeout(() => winScreen.style.display = "flex", 300);
-    document.getElementById("finalScoreTextWin").innerText = `Hai totalizzato: ${score} punti`;
-    }
+  if (gameTimer <= 0) {
+  playing = false;
+  clearInterval(timerInterval);
+  mostraGameOver();
+}
   }, 1000);
 
   setInterval(() => {
@@ -368,7 +362,11 @@ ctx.fillText(`Tempo: ${gameTimer}s`, canvas.width - 120, 30);
     setTimeout(() => winScreen.style.display = "flex", 300);
   }
 
-  if (lives <= 0) endGame();
+  if (lives <= 0) {
+  playing = false;
+  clearInterval(timerInterval);
+  mostraGameOver();
+}
 
 if (Date.now() - difficultyTimer > difficultyInterval) {
   bombSpeed += 0.5; // Bombe più veloci
@@ -449,7 +447,7 @@ function restartGame() {
 }
 
 playBtn.addEventListener("click", startGame);
-restartBtn.addEventListener("click", () => location.reload());
+restartBtn.addEventListener("click", restartGame);
 
 // Impedisce lo scroll quando tocchi il joystick
 document.body.addEventListener("touchstart", (e) => {
@@ -512,3 +510,21 @@ function salvaPunteggio(nome, punteggio) {
     classificaDiv.style.display = "none";
   }
   
+
+  function mostraGameOver() {
+  document.getElementById("finalScoreText").innerHTML = `
+    <strong>Game Over</strong><br>
+    <p>${nomeGiocatore}</p>
+    <p>Hai totalizzato: <strong>${score}</strong> punti</p>
+    <p>Accedi alla classifica e scopri se sei nella <strong>Top 3</strong><br>per vincere un ticket omaggio per bevanda e snack!</p>
+  `;
+
+  document.getElementById("gameOverScreen").classList.remove("hidden");
+  salvaPunteggio(nomeGiocatore, score);
+}
+
+function tornaAllaHome() {
+  document.getElementById("gameOverScreen").classList.add("hidden");
+  startScreen.style.display = "flex";
+  btnApriClassifica.style.display = "block";
+}

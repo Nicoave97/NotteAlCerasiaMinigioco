@@ -2,8 +2,21 @@ const canvas = document.getElementById("gameCanvas");
 const btnApriClassifica = document.getElementById("apriClassificaBtn");
 document.getElementById("apriClassificaBtn").addEventListener("click", caricaClassifica);
 
+// --- Suoni realistici ---
+const audioBonus = new Audio("asset/audio/bonus.mp3");
+const audioHit = new Audio("asset/audio/hit.mp3");
+const audioLose = new Audio("asset/audio//lose.mp3");
+const audioStart = new Audio("asset/audio/startMusic.mp3");
 
-//function resizeCanvasToScreen() {
+
+// Imposta volume base
+audioBonus.volume = 0.6;
+audioHit.volume = 0.7;
+audioStart.volume = 0.8;
+audioLose.volume = 0.6;
+audioStart.loop = true; // musica in loop
+
+//function resizeCanvafsToScreen() {
   //const containerWidth = Math.min(window.innerWidth, 800);
   //canvas.width = containerWidth;
   //canvas.height = containerWidth / 2; // mantieni proporzioni 2:1
@@ -140,51 +153,31 @@ function playSound(start, end, duration = 0.3) {
   } catch (e) {}
 }
 function playBonusSound() {
-  if (soundEnabled) playSound(600, 900, 0.15);
+  if (soundEnabled) {
+    audioBonus.currentTime = 0;
+    audioBonus.play();
+  }
 }
+
 function playFireHitSound() {
-  if (soundEnabled) playSound(150, 100, 0.5);
+  if (soundEnabled) {
+    audioHit.currentTime = 0;
+    audioHit.play();
+  }
 }
 function playWinSound() {
-  if (!soundEnabled) return;
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const now = ctx.currentTime;
-    const notes = [660, 880, 990];
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.3, now);
-    gain.connect(ctx.destination);
-
-    notes.forEach((f, i) => {
-      const osc = ctx.createOscillator();
-      osc.type = "triangle";
-      osc.frequency.setValueAtTime(f, now + i * 0.25);
-      osc.connect(gain);
-      osc.start(now + i * 0.25);
-      osc.stop(now + i * 0.25 + 0.2);
-    });
-
-    setTimeout(() => ctx.close(), notes.length * 300);
-  } catch (e) {}
+  playResultSound();
 }
+
 function playLoseGameSound() {
-  if (!soundEnabled) return;
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const now = ctx.currentTime;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = "sawtooth";
-    osc.frequency.setValueAtTime(200, now);
-    gain.gain.setValueAtTime(0.3, now);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start(now);
-    osc.frequency.exponentialRampToValueAtTime(100, now + 1);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 1);
-    osc.stop(now + 1);
-    osc.onended = () => ctx.close();
-  } catch (e) {}
+  playResultSound();
+}
+
+function playResultSound() {
+  if (soundEnabled) {
+    audioResult.currentTime = 0;
+    audioResult.play();
+  }
 }
 
 // Inizio gioco
@@ -213,6 +206,16 @@ function startGame() {
   }
 
   nomeGiocatore = nome;
+  if (nome === "") {
+  alert("Per favore, inserisci il tuo nome prima di iniziare.");
+  document.getElementById("startScreen").style.display = "block";
+  return;
+}
+
+// Abbassa musica di sottofondo
+if (soundEnabled) {
+  audioStart.volume = 0.1;
+}
 
   // Nascondi schermata iniziale, mostra il canvas o avvia il gioco
   //document.getElementById("startScreen").style.display = "none";
@@ -528,3 +531,11 @@ function tornaAllaHome() {
   startScreen.style.display = "flex";
   btnApriClassifica.style.display = "block";
 }
+
+window.addEventListener("load", () => {
+  if (soundEnabled) {
+    audioStart.play().catch(() => {
+      // Utente deve interagire prima per sbloccare autoplay
+    });
+  }
+}); 

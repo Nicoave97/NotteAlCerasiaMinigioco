@@ -9,15 +9,18 @@
 
 <body>
   <div id="startScreen" class="screen">
+      <div class="start-content">
     <h1>La Fenice</h1>
     <h2>Invito Interattivo</h2>
       <label for="playerName">Inserisci il tuo nome:</label>
   <input type="text" id="playerName" placeholder="Es. Nicola" />
     <button id="playBtn">PLAY</button>
     <button id="toggleSoundBtn">🔊 Suoni ON</button>
-
+  </div>
   
   </div>
+
+
 
   
  <div id="classificaContainer"></div>
@@ -39,12 +42,12 @@
   </div>
 
   <div id="gameOverScreen" class="hidden">
-  <div class="game-over-content">
-  <h1>Game Over</h1>
-  <div id="finalScoreText"></div>
-  <button onclick="restartGame()">🔁 Riprova</button>
-  <button onclick="tornaAllaHome()">⬅️ Torna alla schermata iniziale</button>
-</div>
+    <div class="game-over-content">
+    <h1>Game Over</h1>
+    <div id="finalScoreText"></div>
+    <button onclick="restartGame()">🔁 Riprova</button>
+    <button onclick="tornaAllaHome()">⬅️ Torna alla schermata iniziale</button>
+   </div>
   </div>
 
 

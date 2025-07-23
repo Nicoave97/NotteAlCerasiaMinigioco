@@ -199,3 +199,110 @@ canvas {
 #toggleSoundBtn:hover {
   background: #747d8c;
 }
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.modal-content {
+  background-color: #333;
+  margin: 10% auto;
+  padding: 20px;
+  border: 2px solid #ffcc00;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  color: #fff;
+}
+
+.close {
+  color: #ffcc00;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+ #apriClassificaBtn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      background: linear-gradient(135deg, #ff6f00, #ff8f00);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      z-index: 1000;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    #apriClassificaBtn:hover {
+      background: linear-gradient(135deg, #ff8f00, #ffaa00);
+    }
+
+    #classificaContainer {
+      position: fixed;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0f1c2e;
+      border: 3px solid #ffa502;
+      border-radius: 16px;
+      padding: 20px;
+      z-index: 9999;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+      color: #fff;
+      font-family: 'Courier New', Courier, monospace;
+      display: none;
+      text-align: center;
+    }
+
+    #classificaContainer h3 {
+      font-size: 1.8rem;
+      color: #ffa502;
+      margin-bottom: 10px;
+      text-shadow: 1px 1px 4px #ff7f50;
+    }
+
+    #classificaContainer ol {
+      padding-left: 0;
+      list-style: none;
+      text-align: left;
+    }
+
+    #classificaContainer li {
+      background: #1e272e;
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #57606f;
+      box-shadow: inset 0 0 4px #2f3640;
+    }
+
+    #classificaContainer button {
+      margin-top: 15px;
+      padding: 8px 20px;
+      background: #ff6f00;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
+      box-shadow: 0 4px 8px rgba(255, 143, 0, 0.4);
+    }
+
+    #classificaContainer button:hover {
+      background: #ffa502;
+    }

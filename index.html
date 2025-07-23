@@ -15,7 +15,14 @@
   <input type="text" id="playerName" placeholder="Es. Nicola" />
     <button id="playBtn">PLAY</button>
     <button id="toggleSoundBtn">🔊 Suoni ON</button>
+
+  
   </div>
+
+  
+ <div id="classificaContainer"></div>
+  <!-- Pulsante per aprire la classifica -->
+  <button id="apriClassificaBtn">📋 Classifica</button>
 
 
 
@@ -39,10 +46,32 @@
     </div>
   </div>
 
+
   <!-- Joystick analogico -->
   <div id="joystick-container">
     <div id="joystick"></div>
   </div>
+
+  <!-- Firebase App -->
+<!-- Firebase compatibile con HTML classico -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAxjr3LGltPjGqcw-ZSAS-n051msL1Qzaw",
+    authDomain: "minigiocolafenice.firebaseapp.com",
+    databaseURL: "https://minigiocolafenice-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "minigiocolafenice",
+    storageBucket: "minigiocolafenice.firebasestorage.app",
+    messagingSenderId: "69822139131",
+    appId: "1:69822139131:web:7dee54cf804ede16cbfe5e"
+  };
+
+  // Inizializza Firebase
+  firebase.initializeApp(firebaseConfig);
+</script>
 
   <script src="script.js"></script>
 </body>

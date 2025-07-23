@@ -1,4 +1,7 @@
 const canvas = document.getElementById("gameCanvas");
+const btnApriClassifica = document.getElementById("apriClassificaBtn");
+document.getElementById("apriClassificaBtn").addEventListener("click", caricaClassifica);
+
 
 //function resizeCanvasToScreen() {
   //const containerWidth = Math.min(window.innerWidth, 800);
@@ -23,6 +26,7 @@ function resizeCanvas() {
 }
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
+
 
 // Joystick analogico
 let joystick = {
@@ -91,6 +95,9 @@ let bombSpeed = 2;               // Velocità iniziale delle bombe
 let maxBombs = 5;                // Numero massimo di bombe all'inizio
 let difficultyTimer = 0;         // Per tenere traccia del tempo
 let difficultyInterval = 5000;  // Aumenta difficoltà ogni 5 secondi
+
+
+
 
 
 const bonusEmojis = ["🍕", "🎧", "🍸"];
@@ -184,6 +191,7 @@ function playLoseGameSound() {
 function startGame() {
   startScreen.style.display = "none";
   winScreen.style.display = "none";
+  btnApriClassifica.style.display = "none";
 
   playing = true;
   score = 0;
@@ -430,7 +438,7 @@ function endGame() {
   document.getElementById("gameOverScreen").classList.remove("hidden");
   // Quando finisce il gioco
 let nome = nomeGiocatore
-inviaPunteggio(nome, score); // punteggio è la tua variabile
+salvaPunteggio(nome, score);
 
 
 }
@@ -450,24 +458,57 @@ document.body.addEventListener("touchstart", (e) => {
   }
 }, { passive: false });
 
-function inviaPunteggio(nomeUtente, punteggio) {
-  fetch("https://688002e1f1dcae717b60df69.mockapi.io/scores", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      name: nomeUtente,
-      score: punteggio,
-      createdAt: new Date().toISOString() // data in formato ISO
-    })
-  })
-  .then(res => res.json())
-  .then(data => {
-    console.log("✅ Punteggio salvato:", data);
-  })
-  .catch(error => {
-    console.error("❌ Errore nel salvataggio:", error);
+
+function salvaPunteggio(nome, punteggio) {
+  const now = new Date().toISOString();
+
+  firebase.database().ref("punteggi").push({
+    nome: nome,
+    punteggio: punteggio,
+    data: now
   });
 }
 
+
+ const classificaDiv = document.getElementById("classificaContainer");
+
+  //document.getElementById("apriClassificaBtn").addEventListener("click", () => {
+    //classificaDiv.style.display = "block";
+    //caricaClassifica();
+ // });
+
+
+
+ function caricaClassifica() {
+  const classificaRef = firebase.database().ref("punteggi").orderByChild("punteggio").limitToLast(10);
+
+  classificaRef.once("value")
+    .then(snapshot => {
+      const dati = [];
+
+      snapshot.forEach(childSnapshot => {
+        dati.push(childSnapshot.val());
+      });
+
+      // Ordina in ordine decrescente di punteggio
+      dati.sort((a, b) => b.punteggio - a.punteggio);
+
+      let html = "<h3>Classifica Top 10</h3><ol style='text-align: left;'>";
+      dati.forEach(entry => {
+        html += `<li><strong>${entry.nome}</strong>: ${entry.punteggio} punti</li>`;
+      });
+      html += "</ol><button onclick=\"document.getElementById('classificaContainer').style.display = 'none'\">Chiudi</button>";
+
+      const classificaContainer = document.getElementById("classificaContainer");
+      classificaContainer.innerHTML = html;
+      classificaContainer.style.display = "block";
+    })
+    .catch(error => {
+      console.error("Errore nel caricamento della classifica:", error);
+    });
+}
+
+  function chiudiClassifica() {
+    classificaDiv.style.display = "none";
+  }
+  

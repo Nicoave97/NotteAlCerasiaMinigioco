@@ -48,12 +48,15 @@ h2 {
 }
 
 /* ---------- CANVAS / CAMPO DI GIOCO ---------- */
+
 canvas {
   display: block;
+  margin: 20px auto;
+  max-width: 100%;
+  max-height: 100%;
   background: #16222a;
   border: 4px solid #ffa502;
   border-radius: 12px;
-  margin: 20px auto;
   box-sizing: border-box;
 }
 
@@ -83,7 +86,7 @@ canvas {
   align-items: center;
   flex-direction: column;
   color: #fff;
-  font-family: 'Press Start 2P', cursive;
+  font-family: 'Fredoka', sans-serif;
   z-index: 999;
 }
 
@@ -100,7 +103,7 @@ canvas {
   padding: 12px 24px;
   background: linear-gradient(to bottom, #ff9933, #cc6600);
   color: #fff;
-  font-family: 'Press Start 2P', cursive;
+  font-family: 'Fredoka', sans-serif;
   font-size: 14px;
   border: 3px solid #663300;
   border-radius: 8px;
@@ -117,12 +120,18 @@ canvas {
 /* ---------- EFFETTO DANNO FLASH ---------- */
 #damageFlash {
   pointer-events: none;
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
   background: rgba(255, 0, 0, 0.5);
-  z-index: 1000;
-  display: none;
-  animation: flashRed 0.4s ease forwards;
+  opacity: 0;
+  z-index: 2000;
+  transition: opacity 0.1s ease;
+}
+
+#damageFlash.active {
+  opacity: 1;
 }
 
 @keyframes flashRed {
@@ -242,6 +251,7 @@ canvas {
       color: white;
       font-weight: bold;
       cursor: pointer;
+      
       z-index: 1000;
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
@@ -262,6 +272,8 @@ canvas {
       width: 90%;
       max-width: 400px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+      max-height: 60vh;          /* << LIMITA ALTEZZA VISIBILE */
+     overflow-y: auto;          /* << ATTIVA SCROLL VERTICALE */
       color: #fff;
       font-family: 'Courier New', Courier, monospace;
       display: none;
@@ -330,4 +342,117 @@ canvas {
   justify-content: center;
   animation: fadeZoomIn 1s ease-out;
   text-align: center;
+}
+
+#hitAlert {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 0, 0, 0.85);
+  color: white;
+  padding: 20px 30px;
+  font-size: 1.6rem;
+  font-weight: bold;
+  border-radius: 12px;
+  z-index: 1001;
+  text-align: center;
+  box-shadow: 0 0 20px #ff6b6b;
+  animation: alertFade 1.2s ease-in-out;
+}
+
+@keyframes alertFade {
+  0% { opacity: 0; transform: translate(-50%, -20%); }
+  30% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -50%); }
+}
+
+.hidden {
+  display: none;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.modal-content {
+  background-color: #333;
+  margin: 10% auto;
+  padding: 20px;
+  border: 2px solid #ffcc00;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  color: #fff;
+  font-family: 'Fredoka', sans-serif;
+  text-align: left;
+}
+
+.close {
+  color: #ffcc00;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#apriRegoleBtn {
+  position: fixed;
+  top: 20px;
+  right: 150px; /* Sposta a sinistra rispetto a Classifica */
+  padding: 10px 20px;
+  font-size: 1rem;
+  background: linear-gradient(135deg, #ff6f00, #ff8f00);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 1000;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+#apriRegoleBtn:hover {
+  background: linear-gradient(135deg, #ff6f00, #ff8f00);
+}
+
+#topButtons {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 12px; /* distanza tra i pulsanti */
+  z-index: 1000;
+}
+
+#topButtons button {
+  padding: 10px 16px;
+  font-size: 1rem;
+  background: linear-gradient(135deg, #ff6f00, #ff8f00);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  transition: background 0.2s ease;
+}
+
+#topButtons button:hover {
+  background: linear-gradient(135deg, #ffaa00, #ff8f00);
+}
+
+#apriRegoleBtn {
+ background: linear-gradient(135deg, #ff6f00, #ff8f00);
+}
+#apriRegoleBtn:hover {
+background: linear-gradient(135deg, #ff6f00, #ff8f00);
 }

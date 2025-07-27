@@ -27,12 +27,27 @@ audioStart.loop = true; // musica in loop
 const ctx = canvas.getContext("2d");
 
 // Ridimensiona canvas in base allo schermo
-function resizeCanvas() {
-  const isMobile = window.innerWidth < 950;
-  const padding = 20; // margine di sicurezza
+//function resizeCanvas() {
+  //const isMobile = window.innerWidth < 950;
+  //const padding = 20; // margine di sicurezza
 
-  const width = isMobile ? window.innerWidth - padding : 800;
-  const height = isMobile ? window.innerHeight - padding * 2 : 400;
+  //const width = isMobile ? window.innerWidth - padding : 800;
+  //const height = isMobile ? window.innerHeight - padding * 2 : 400;
+
+//  canvas.width = width;
+  //canvas.height = height;
+//}
+
+
+function resizeCanvas() {
+  const maxWidth = 800;
+  const maxHeight = 630;
+
+  const availableWidth = window.innerWidth - 20;
+  const availableHeight = window.innerHeight - 20;
+
+  const width = Math.min(availableWidth, maxWidth);
+  const height = Math.min(availableHeight, maxHeight);
 
   canvas.width = width;
   canvas.height = height;
@@ -87,7 +102,7 @@ window.addEventListener("touchend", () => {
 });
 
 const startScreen = document.getElementById("startScreen");
-const winScreen = document.getElementById("winScreen");
+
 const playBtn = document.getElementById("playBtn");
 const restartBtn = document.getElementById("restartBtn");
 
@@ -111,8 +126,6 @@ let difficultyInterval = 5000;  // Aumenta difficoltà ogni 5 secondi
 
 
 
-
-
 const bonusEmojis = ["🍕", "🎧", "🍸"];
 const fireEmoji = "🔥";
 
@@ -121,11 +134,29 @@ let soundEnabled = true;
 const toggleSoundBtn = document.getElementById("toggleSoundBtn");
 
 toggleSoundBtn.addEventListener("click", () => {
-  // Inverte il valore della variabile: true → false, false → true
   soundEnabled = !soundEnabled;
 
-  // Cambia il testo sul bottone in base allo stato
   toggleSoundBtn.textContent = soundEnabled ? "🔊 Suoni ON" : "🔇 Suoni OFF";
+
+  if (!soundEnabled) {
+    // Stop immediato di tutti i suoni attivi
+    audioBonus.pause();
+    audioHit.pause();
+    audioStart.pause();
+    audioStart.pause();
+
+    // Resetta la posizione a inizio per sicurezza
+    audioBonus.currentTime = 0;
+    audioHit.currentTime = 0;
+    audioStart.currentTime = 0;
+    audioStart.currentTime = 0;
+  } else {
+    // Se sei sulla schermata iniziale, riavvia la musica start
+    if (startScreen.style.display !== "none") {
+      audioStart.play();
+      audioStart.volume = 0.6;
+    }
+  }
 });
 
 const logoImg = new Image();
@@ -175,16 +206,19 @@ function playLoseGameSound() {
 
 function playResultSound() {
   if (soundEnabled) {
-    audioResult.currentTime = 0;
-    audioResult.play();
+    audioStart.currentTime = 0;
+    audioStart.play();
   }
 }
+
+
 
 // Inizio gioco
 function startGame() {
   startScreen.style.display = "none";
-  winScreen.style.display = "none";
+
   btnApriClassifica.style.display = "none";
+  document.getElementById("apriRegoleBtn").style.display = "none";
 
   playing = true;
   score = 0;
@@ -235,6 +269,7 @@ if (soundEnabled) {
   playing = false;
   clearInterval(timerInterval);
   mostraGameOver();
+
 }
   }, 1000);
 
@@ -269,6 +304,20 @@ function spawnHeart() {
     emoji: "💖",
     speed: 2
   });
+}
+
+
+function showHitAlert() {
+  const alert = document.getElementById("hitAlert");
+  if (!alert) return;
+
+  // reset animazione
+  alert.style.animation = "none";
+  alert.offsetHeight; // forza il reflow per riattivare l'animazione
+  alert.style.animation = "alertFlash 1s ease";
+
+  // Mostra l’elemento per sicurezza
+  alert.style.opacity = "1";
 }
 
 function update() {
@@ -329,6 +378,7 @@ function update() {
       lives--;
       playFireHitSound();
       showDamageFlash();
+      showHitAlert(); 
       fires.splice(i, 1);
       spawnFire();
     } else if (fire.x < -30) {
@@ -355,15 +405,15 @@ if (gameTimer <= 10) {
 } else {
   ctx.fillStyle = "white";
 }
+// Lampeggio bordo negli ultimi 3 secondi
+if (gameTimer <= 3) {
+  canvas.style.borderColor = (gameTimer % 2 === 0) ? "red" : "orange";
+} else if (canvas.style.borderColor !== "#ffa502") {
+  canvas.style.borderColor = "#ffa502"; // colore normale
+}
 ctx.fillText(`Tempo: ${gameTimer}s`, canvas.width - 120, 30);
 
 
-  if (score >= 10000 ) {
-    playing = false;
-    clearInterval(timerInterval);
-    playWinSound();
-    setTimeout(() => winScreen.style.display = "flex", 300);
-  }
 
   if (lives <= 0) {
   playing = false;
@@ -371,9 +421,16 @@ ctx.fillText(`Tempo: ${gameTimer}s`, canvas.width - 120, 30);
   mostraGameOver();
 }
 
-if (Date.now() - difficultyTimer > difficultyInterval) {
-  bombSpeed += 0.5; // Bombe più veloci
+
+
+// Difficoltà aumentata solo se il timer è sotto i 20 secondi
+if (gameTimer < 20 && Date.now() - difficultyTimer > difficultyInterval) {
+   bombSpeed *= 2.0; // aumento progressivo
+  maxBombs += 1;
   fires.forEach(fire => fire.speed = bombSpeed);
+
+  canvas.style.borderColor = (canvas.style.borderColor === "red") ? "#ffa502" : "red";
+  mostraMessaggio("⚡ TURBO MODE!");
 
   if (fires.length < maxBombs) {
     fires.push({
@@ -384,9 +441,8 @@ if (Date.now() - difficultyTimer > difficultyInterval) {
     });
   }
 
-  difficultyTimer = Date.now(); // Reset timer
+  difficultyTimer = Date.now();
 }
-
 // Vite bonus 💖
 for (let i = hearts.length - 1; i >= 0; i--) {
   const heart = hearts[i];
@@ -416,18 +472,21 @@ function checkCollision(r1, r2) {
 }
 
 function showDamageFlash() {
-  if (document.getElementById("damageFlash")) return;
-  const flash = document.createElement("div");
-  flash.id = "damageFlash";
-  flash.style.position = "absolute";
-  flash.style.top = "0";
-  flash.style.left = "0";
-  flash.style.width = "100%";
-  flash.style.height = "100%";
-  flash.style.background = "rgba(255,0,0,0.5)";
-  flash.style.zIndex = "999";
-  document.body.appendChild(flash);
-  setTimeout(() => document.body.removeChild(flash), 400);
+  let flash = document.getElementById("damageFlash");
+
+  if (!flash) {
+    flash = document.createElement("div");
+    flash.id = "damageFlash";
+    document.body.appendChild(flash);
+  }
+
+  flash.classList.remove("active");
+  void flash.offsetWidth; // forza reflow per riattivare animazione
+  flash.classList.add("active");
+
+  setTimeout(() => {
+    flash.classList.remove("active");
+  }, 400);
 }
 
 window.addEventListener("keydown", e => keys[e.key] = true);
@@ -450,7 +509,7 @@ function restartGame() {
 }
 
 playBtn.addEventListener("click", startGame);
-restartBtn.addEventListener("click", restartGame);
+//restartBtn.addEventListener("click", restartGame);
 
 // Impedisce lo scroll quando tocchi il joystick
 document.body.addEventListener("touchstart", (e) => {
@@ -494,11 +553,18 @@ function salvaPunteggio(nome, punteggio) {
       // Ordina in ordine decrescente di punteggio
       dati.sort((a, b) => b.punteggio - a.punteggio);
 
-      let html = "<h3>Classifica Top 10</h3><ol style='text-align: left;'>";
-      dati.forEach(entry => {
-        html += `<li><strong>${entry.nome}</strong>: ${entry.punteggio} punti</li>`;
-      });
-      html += "</ol><button onclick=\"document.getElementById('classificaContainer').style.display = 'none'\">Chiudi</button>";
+     let html = `
+  <button id="classificaChiudiIcon" onclick="document.getElementById('classificaContainer').style.display = 'none'">Chiudi</button>
+  <h3>Classifica Top 10</h3>
+  <ol style='text-align: left;'>
+`;
+   dati.forEach(entry => {
+  const data = new Date(entry.data).toLocaleString("it-IT", { dateStyle: "short", timeStyle: "short" });
+  html += `<li><strong>${entry.nome}</strong>: ${entry.punteggio} punti<br><small>${data}</small></li>`;
+});
+
+html += "</ol><button onclick=\"document.getElementById('classificaContainer').style.display = 'none'\">Chiudi</button>";
+      
 
       const classificaContainer = document.getElementById("classificaContainer");
       classificaContainer.innerHTML = html;
@@ -514,12 +580,13 @@ function salvaPunteggio(nome, punteggio) {
   }
   
 
-  function mostraGameOver() {
+ function mostraGameOver() {
   document.getElementById("finalScoreText").innerHTML = `
-    <strong>Game Over</strong><br>
-    <p>${nomeGiocatore}</p>
+    <strong>Tempo esaurito o vite terminate!</strong><br>
+    <p><strong>${nomeGiocatore}</strong></p>
     <p>Hai totalizzato: <strong>${score}</strong> punti</p>
-    <p>Accedi alla classifica e scopri se sei nella <strong>Top 3</strong><br>per vincere un ticket omaggio per bevanda e snack!</p>
+    <p>Effettua uno screen e taggaci, o invialo alla nostra pagina Instagram<br>
+    per scoprire se hai vinto l’omaggio snack & bevanda!</p>
   `;
 
   document.getElementById("gameOverScreen").classList.remove("hidden");
@@ -530,6 +597,7 @@ function tornaAllaHome() {
   document.getElementById("gameOverScreen").classList.add("hidden");
   startScreen.style.display = "flex";
   btnApriClassifica.style.display = "block";
+  document.getElementById("apriRegoleBtn").style.display = "block";
 }
 
 window.addEventListener("load", () => {
@@ -539,3 +607,33 @@ window.addEventListener("load", () => {
     });
   }
 }); 
+
+
+
+
+document.getElementById("apriRegoleBtn").addEventListener("click", () => {
+  document.getElementById("regoleModal").style.display = "block";
+});
+
+function chiudiRegole() {
+  document.getElementById("regoleModal").style.display = "none";
+}
+
+function mostraMessaggio(testo) {
+  const div = document.createElement("div");
+  div.innerText = testo;
+  div.style.position = "fixed";
+  div.style.top = "50%";
+  div.style.left = "50%";
+  div.style.transform = "translate(-50%, -50%)";
+  div.style.fontSize = "2rem";
+  div.style.color = "#ffdd57";
+  div.style.background = "rgba(0,0,0,0.7)";
+  div.style.padding = "20px 30px";
+  div.style.borderRadius = "12px";
+  div.style.zIndex = 9999;
+  div.style.boxShadow = "0 0 20px #ffa502";
+  document.body.appendChild(div);
+
+  setTimeout(() => div.remove(), 1000);
+}

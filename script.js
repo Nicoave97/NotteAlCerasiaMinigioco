@@ -110,6 +110,9 @@ let player = { x: 50, y: 180, width: 50, height: 50 };
 let keys = {};
 let items = [];
 let fires = [];
+const clocks = [];
+const clockEmoji = "⏱️";
+let clockSpawnTimer = Date.now();
 let score = 0;
 let lives = 3;
  let hearts = [];  // Array per vite bonus
@@ -229,22 +232,26 @@ function startGame() {
   items = [];
   fires = [];
 
-    const input = document.getElementById("playerName");
-  const nome = input.value.trim();
+  
+    
+const input = document.getElementById("playerName");
+const nome = input.value.trim();
 
-  if (nome === "") {
-    alert("Per favore, inserisci il tuo nome prima di iniziare.");
-      document.getElementById("startScreen").style.display = "block";
-      document.getElementById("gameCanvas").style.display = "block"; // se usi un canvas
-    return;
-  }
-
-  nomeGiocatore = nome;
-  if (nome === "") {
+if (nome === "") {
   alert("Per favore, inserisci il tuo nome prima di iniziare.");
-  document.getElementById("startScreen").style.display = "block";
+
+  // Mostra schermata iniziale e resetta correttamente i bottoni
+  startScreen.style.display = "flex";
+  canvas.style.display = "none";
+  btnApriClassifica.style.display = "block";
+  document.getElementById("apriRegoleBtn").style.display = "block";
   return;
 }
+
+nomeGiocatore = nome;
+ 
+
+ 
 
 // Abbassa musica di sottofondo
 if (soundEnabled) {
@@ -321,15 +328,24 @@ function showHitAlert() {
 }
 
 function update() {
+  
+
+  
   if (!playing) return;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Movimento con joystick
-  if (joystick.dragging) {
-    let speed = 0.10;
-    player.x += joystick.deltaX * speed;
-    player.y += joystick.deltaY * speed;
-  }
+ if (joystick.dragging) {
+  const maxSpeed = 3; // velocità massima costante
+  const distance = Math.sqrt(joystick.deltaX ** 2 + joystick.deltaY ** 2);
+  const angle = Math.atan2(joystick.deltaY, joystick.deltaX);
+
+  // Normalizza la velocità in base alla distanza dal centro
+  const speedFactor = Math.min(distance / 40, 1); // da 0 a 1
+  const speed = maxSpeed * speedFactor;
+
+  player.x += Math.cos(angle) * speed;
+  player.y += Math.sin(angle) * speed;
+}
 
   // Movimento da tastiera
   if (keys["ArrowUp"] && player.y > 0) player.y -= 3;
@@ -345,12 +361,16 @@ function update() {
     ctx.drawImage(logoImg, player.x, player.y, player.width, player.height);
   }
 
+
+
   // Oggetti bonus
   for (let i = items.length - 1; i >= 0; i--) {
     const item = items[i];
     ctx.font = "28px serif";
     ctx.fillText(item.emoji, item.x, item.y + 24);
     item.x -= item.speed;
+
+    
 
     if (checkCollision(player, item)) {
       score += 10;
@@ -387,7 +407,7 @@ function update() {
     }
   }
 
-  
+
 
   // HUD
 ctx.font = "18px monospace";
@@ -395,6 +415,11 @@ ctx.font = "18px monospace";
 // PUNTEGGIO
 ctx.fillStyle = "white";
 ctx.fillText(`Punteggio: ${score}`, 10, 30);
+
+clocks.forEach(clock => {
+  ctx.font = "24px Arial";
+  ctx.fillText(clock.emoji, clock.x, clock.y);
+});
 
 // VITE
 ctx.fillText("❤️".repeat(lives), 10, 60);
@@ -421,28 +446,34 @@ ctx.fillText(`Tempo: ${gameTimer}s`, canvas.width - 120, 30);
   mostraGameOver();
 }
 
+  if (Date.now() - clockSpawnTimer > 10000) {
+  generaOrologioBonus();
+  clockSpawnTimer = Date.now();
+}
 
+clocks.forEach((clock, index) => {
+  clock.x -= clock.speed;
 
-// Difficoltà aumentata solo se il timer è sotto i 20 secondi
-if (gameTimer < 20 && Date.now() - difficultyTimer > difficultyInterval) {
-   bombSpeed *= 2.0; // aumento progressivo
-  maxBombs += 1;
-  fires.forEach(fire => fire.speed = bombSpeed);
-
-  canvas.style.borderColor = (canvas.style.borderColor === "red") ? "#ffa502" : "red";
-  mostraMessaggio("⚡ TURBO MODE!");
-
-  if (fires.length < maxBombs) {
-    fires.push({
-      x: canvas.width + Math.random() * 300,
-      y: Math.random() * (canvas.height - 24),
-      emoji: fireEmoji,
-      speed: bombSpeed
-    });
+  // Se esce dallo schermo, rimuovilo
+  if (clock.x + 24 < 0) {
+    clocks.splice(index, 1);
   }
 
-  difficultyTimer = Date.now();
-}
+  // Collisione con player
+  if (
+    player.x < clock.x + 24 &&
+    player.x + player.width > clock.x &&
+    player.y < clock.y + 24 &&
+    player.y + player.height > clock.y
+  ) {
+    gameTimer += 5;
+    mostraMessaggio("+5 secondi!");
+    clocks.splice(index, 1);
+  }
+});
+  
+
+
 // Vite bonus 💖
 for (let i = hearts.length - 1; i >= 0; i--) {
   const heart = hearts[i];
@@ -637,3 +668,14 @@ function mostraMessaggio(testo) {
 
   setTimeout(() => div.remove(), 1000);
 }
+
+function generaOrologioBonus() {
+  if (Math.random() < 1.00) { // 25% di possibilità
+    clocks.push({
+      x: canvas.width + Math.random() * 300,
+      y: Math.random() * (canvas.height - 24),
+      emoji: clockEmoji,
+      speed: 2.5
+    });
+  }
+} 

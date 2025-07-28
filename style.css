@@ -71,6 +71,7 @@ canvas {
   align-items: center;
   flex-direction: column;
   z-index: 10;
+  font-family: 'Press Start 2P', cursive;
 }
 
 /* ---------- SCHERMATA GAME OVER ---------- */
@@ -86,7 +87,7 @@ canvas {
   align-items: center;
   flex-direction: column;
   color: #fff;
-  font-family: 'Fredoka', sans-serif;
+ font-family: 'Press Start 2P', cursive;
   z-index: 999;
 }
 
@@ -455,4 +456,79 @@ canvas {
 }
 #apriRegoleBtn:hover {
 background: linear-gradient(135deg, #ff6f00, #ff8f00);
+}
+
+
+#startScreen {
+  background-image: url('asset/image/camping_pixel.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: white;
+}
+
+body, html {
+  font-family: 'Press Start 2P', cursive;
+  
+}
+
+#startScreen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.titoloGioco {
+  font-size: 40px;
+  color: #ff8f00;
+  text-shadow: 5px 5px 0 #000;
+  margin-bottom: 20px;
+ 
+}
+
+ 
+.slogan {
+  font-size: 10px;
+  font-style: italic;
+  color: #ccc;
+  margin-bottom: 20px;
+}
+
+.emojiSet {
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+#playerName {
+  font-size: 30;
+  padding: 5px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  font-family: 'Press Start 2P', cursive;
+}
+
+#playBtn {
+  font-family: 'Press Start 2P', cursive;
+  padding: 10px 20px;
+  font-size: 20px;
+  background-color: #ffcc00;
+  color: black;
+  border: 2px solid #000;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 0 10px #ffa502;
+  transition: transform 0.2s, background-color 0.3s;
+}
+
+#playBtn:hover {
+  transform: scale(1.05);
+  background-color: #ffdf33;
+}
+
+body {
+  font-family: 'Press Start 2P', cursive; /* Sostituisci con il tuo font */
 }

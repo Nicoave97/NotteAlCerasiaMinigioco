@@ -5,12 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>La Fenice Invito Interattivo</title>
   <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 
 <body>
   <div id="startScreen" class="screen">
       <div class="start-content">
-    <h1>La Fenice</h1>
+    <h1 class="titoloGioco" id="lblLafenice">La Fenice</h1>
     <h2>Invito Interattivo</h2>
       <label for="playerName">Inserisci il tuo nome:</label>
   <input type="text" id="playerName" placeholder="Es. Nicola" />
@@ -42,7 +43,7 @@
     <p>💖 Raccogli i cuori per guadagnare vite extra (max 5).</p>
     <p>⏱️ Hai 30 secondi! Il gioco termina se finisci le vite o il tempo.</p>
     <p>📲 Gioca da smartphone o PC! Usa il joystick o i tasti freccia/WASD.</p>
-    <p>📲 Se riesci a classficiarti nei primi 3 posti in classifica avrai in omaggio bevanda e snack</p>
+    <p> Se riesci a classficiarti nei primi 3 posti in classifica avrai in omaggio bevanda e snack</p>
   </div>
 </div>
 
@@ -56,7 +57,7 @@
 
   <div id="gameOverScreen" class="hidden">
     <div class="game-over-content">
-    <h1>Game Over</h1>
+    <h1 class="titoloGioco">Game Over</h1>
     <div id="finalScoreText"></div>
     <button onclick="restartGame()">🔁 Riprova</button>
     <button onclick="tornaAllaHome()">⬅️ Torna alla schermata iniziale</button>

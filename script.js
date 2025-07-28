@@ -366,7 +366,8 @@ function update() {
   // Oggetti bonus
   for (let i = items.length - 1; i >= 0; i--) {
     const item = items[i];
-    ctx.font = "28px serif";
+    ctx.font = "28px 'Press Start 2P'";
+   
     ctx.fillText(item.emoji, item.x, item.y + 24);
     item.x -= item.speed;
 
@@ -390,7 +391,7 @@ function update() {
   // Ostacoli
   for (let i = fires.length - 1; i >= 0; i--) {
     const fire = fires[i];
-    ctx.font = "28px serif";
+    ctx.font = "28px 'Press Start 2P'";
     ctx.fillText(fire.emoji, fire.x, fire.y + 24);
     fire.x -= fire.speed;
 
@@ -410,14 +411,14 @@ function update() {
 
 
   // HUD
-ctx.font = "18px monospace";
+ctx.font = "12px 'Press Start 2P'";
 
 // PUNTEGGIO
 ctx.fillStyle = "white";
 ctx.fillText(`Punteggio: ${score}`, 10, 30);
 
 clocks.forEach(clock => {
-  ctx.font = "24px Arial";
+  ctx.font = "24px 'Press Start 2P'";
   ctx.fillText(clock.emoji, clock.x, clock.y);
 });
 
@@ -477,7 +478,7 @@ clocks.forEach((clock, index) => {
 // Vite bonus 💖
 for (let i = hearts.length - 1; i >= 0; i--) {
   const heart = hearts[i];
-  ctx.font = "28px serif";
+  ctx.font = "28px 'Press Start 2P'";
   ctx.fillText(heart.emoji, heart.x, heart.y + 24);
   heart.x -= heart.speed;
 
@@ -664,6 +665,7 @@ function mostraMessaggio(testo) {
   div.style.borderRadius = "12px";
   div.style.zIndex = 9999;
   div.style.boxShadow = "0 0 20px #ffa502";
+  div.style.font =  "20px 'Press Start 2P'";
   document.body.appendChild(div);
 
   setTimeout(() => div.remove(), 1000);

@@ -2,6 +2,31 @@ const canvas = document.getElementById("gameCanvas");
 const btnApriClassifica = document.getElementById("apriClassificaBtn");
 document.getElementById("apriClassificaBtn").addEventListener("click", caricaClassifica);
 
+const paroleVietate = [
+  // Volgari e bestemmie (senza "maria")
+  "dio", "gesù", "madonna", "porcodio", "porco", "crist0", "d1o", "d1o", "gesu", "cristo",
+
+  // Volgari classici
+  "cazzo", "merda", "vaffanculo", "stronzo", "troia", "puttana", "bastardo", "bastarda",
+  "culo", "figa", "sborra", "succhiami", "scopami", "chiavami", "pisello", "vagina", "dildo",
+  "pezzo di merda", "suca", "fottiti", "inculo", "leccaculo", "coglione", "cogliona",
+
+  // Varianti con simboli o mascherate
+  "v@ff", "tr0ia", "putt@na", "c@zzo", "m3rda", "v4ff", "str0nzo", "f1ga", "cul@", "fig@",
+  "sc0pami", "chi@vami", "suc@",
+
+  // Insulti personali o razzisti
+  "mongolo", "handicappato", "ritardato", "negro", "zingaro", "ebreo", "frocio", "finocchio",
+  "lesbica", "gay", "islamico", "musulmano", "terrone", "polentone", "down", "malato", "scemo",
+  "idiota", "imbecille", "cretino", "stupido", "deficiente", "brutta", "vai a cagare", "muori",
+
+  // In inglese
+  "fuck", "shit", "bitch", "asshole", "motherfucker", "fucker", "cunt", "whore", "slut", "dick", "nigger",
+
+  // Anti-spam o troll
+  "admin", "root", "www", "http", "https"
+];
+
 // --- Suoni realistici ---
 const audioBonus = new Audio("asset/audio/bonus.mp3");
 const audioHit = new Audio("asset/audio/hit.mp3");
@@ -218,6 +243,7 @@ function playResultSound() {
 
 // Inizio gioco
 function startGame() {
+
   startScreen.style.display = "none";
 
   btnApriClassifica.style.display = "none";
@@ -242,11 +268,22 @@ if (nome === "") {
 
   // Mostra schermata iniziale e resetta correttamente i bottoni
   startScreen.style.display = "flex";
-  canvas.style.display = "none";
+ // canvas.style.display = "none";
   btnApriClassifica.style.display = "block";
   document.getElementById("apriRegoleBtn").style.display = "block";
   return;
 }
+
+  // Verifica nome offensivo
+  if (contieneParoleOffensive(nome)) {
+    alert("Il nome inserito contiene parole non consentite.");
+   startScreen.style.display = "flex";
+ // canvas.style.display = "none";
+    btnApriClassifica.style.display = "block";
+   document.getElementById("apriRegoleBtn").style.display = "block";
+
+    return;
+  }
 
 nomeGiocatore = nome;
  
@@ -681,3 +718,8 @@ function generaOrologioBonus() {
     });
   }
 } 
+
+function contieneParoleOffensive(nome) {
+  const nomeLower = nome.toLowerCase();
+  return paroleVietate.some(parola => nomeLower.includes(parola));
+}

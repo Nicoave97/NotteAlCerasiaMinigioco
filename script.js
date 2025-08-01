@@ -30,9 +30,12 @@ const paroleVietate = [
 // --- Suoni realistici ---
 const audioBonus = new Audio("asset/audio/bonus.mp3");
 const audioHit = new Audio("asset/audio/hit.mp3");
-const audioLose = new Audio("asset/audio//lose.mp3");
+const audioLose = new Audio("asset/audio/lose.mp3");
 const audioStart = new Audio("asset/audio/startMusic.mp3");
 
+[audioBonus, audioHit, audioLose, audioStart].forEach(audio => {
+  audio.preload = 'auto';
+});
 
 // Imposta volume base
 audioBonus.volume = 0.6;
@@ -40,6 +43,8 @@ audioHit.volume = 0.7;
 audioStart.volume = 0.8;
 audioLose.volume = 0.6;
 audioStart.loop = true; // musica in loop
+
+let playing = false;
 
 //function resizeCanvafsToScreen() {
   //const containerWidth = Math.min(window.innerWidth, 800);
@@ -64,7 +69,11 @@ const ctx = canvas.getContext("2d");
 //}
 
 
+
 function resizeCanvas() {
+
+   if (playing) return; // ❗ Non ridimensionare durante il gioco
+
   const maxWidth = 800;
   const maxHeight = 630;
 
@@ -142,8 +151,7 @@ let score = 0;
 let lives = 3;
  let hearts = [];  // Array per vite bonus
 let collected = 0;
-let playing = false;
-let gameTimer = 30;
+let gameTimer = 45;
 let timerInterval;
 let nomeGiocatore = '';
 
@@ -305,7 +313,7 @@ if (soundEnabled) {
   for (let i = 0; i < 7; i++) spawnItem();
   for (let i = 0; i < 10; i++) spawnFire();
 
-  gameTimer = 30;
+  gameTimer =45;
   clearInterval(timerInterval);
   timerInterval = setInterval(() => {
     gameTimer--;
@@ -366,6 +374,11 @@ function showHitAlert() {
 
 function update() {
   
+ctx.textBaseline = "top";
+ctx.textAlign = "left";
+ctx.imageSmoothingEnabled = false;
+ctx.font = "12px 'Press Start 2P', monospace"; // font coerente per l'HUD
+
 
   
   if (!playing) return;
@@ -410,7 +423,7 @@ function update() {
 
     
 
-    if (checkCollision(player, item)) {
+   if (checkCollision(player, item, 28, 28)) {
       score += 10;
       collected++;
       playBonusSound();
@@ -425,6 +438,7 @@ function update() {
 
   }
 
+  
   // Ostacoli
   for (let i = fires.length - 1; i >= 0; i--) {
     const fire = fires[i];
@@ -432,7 +446,10 @@ function update() {
     ctx.fillText(fire.emoji, fire.x, fire.y + 24);
     fire.x -= fire.speed;
 
-    if (checkCollision(player, fire)) {
+
+   // ctx.strokeStyle = "red";
+//ctx.strokeRect(fire.x, fire.y + 22, 24, 28);
+  if (checkCollision(player, fire, 0, 22, 24, 28)) {
       lives--;
       playFireHitSound();
       showDamageFlash();
@@ -448,33 +465,50 @@ function update() {
 
 
   // HUD
-ctx.font = "12px 'Press Start 2P'";
+ctx.font = "bold 12px 'Press Start 2P', monospace";
+ctx.textBaseline = "top";
+ctx.textAlign = "left";
+ctx.imageSmoothingEnabled = false;
 
 // PUNTEGGIO
 ctx.fillStyle = "white";
+ctx.save();
+ctx.font = "bold 12px 'Press Start 2P', monospace";
+ctx.textBaseline = "top";
+ctx.textAlign = "left";
+ctx.fillStyle = "white"; // o altro colore
+ctx.imageSmoothingEnabled = false;
 ctx.fillText(`Punteggio: ${score}`, 10, 30);
+ctx.restore();
 
 clocks.forEach(clock => {
-  ctx.font = "24px 'Press Start 2P'";
+  ctx.font = "28px 'Press Start 2P'";
   ctx.fillText(clock.emoji, clock.x, clock.y);
 });
 
 // VITE
 ctx.fillText("❤️".repeat(lives), 10, 60);
+ctx.font = "bold 12px 'Press Start 2P', monospace";
 
 // TIMER (diventa rosso se <=10 secondi)
+ctx.font = "bold 12px 'Press Start 2P', monospace";
 if (gameTimer <= 10) {
   ctx.fillStyle = (gameTimer % 2 === 0) ? "red" : "orange"; // lampeggia tra rosso/arancione
+  ctx.font = "bold 12px 'Press Start 2P', monospace";
 } else {
   ctx.fillStyle = "white";
+  ctx.font = "bold 12px 'Press Start 2P', monospace";
 }
-// Lampeggio bordo negli ultimi 3 secondi
-if (gameTimer <= 3) {
+// Lampeggio bordo negli ultimi 10 secondi
+if (gameTimer <= 10) {
+  ctx.font = "bold 12px 'Press Start 2P', monospace";
   canvas.style.borderColor = (gameTimer % 2 === 0) ? "red" : "orange";
 } else if (canvas.style.borderColor !== "#ffa502") {
+  ctx.font = "bold 12px 'Press Start 2P', monospace";
   canvas.style.borderColor = "#ffa502"; // colore normale
 }
 ctx.fillText(`Tempo: ${gameTimer}s`, canvas.width - 120, 30);
+ctx.font = "bold 12px 'Press Start 2P', monospace";
 
 
 
@@ -484,7 +518,7 @@ ctx.fillText(`Tempo: ${gameTimer}s`, canvas.width - 120, 30);
   mostraGameOver();
 }
 
-  if (Date.now() - clockSpawnTimer > 10000) {
+if (Date.now() - clockSpawnTimer > 5000) {
   generaOrologioBonus();
   clockSpawnTimer = Date.now();
 }
@@ -519,7 +553,7 @@ for (let i = hearts.length - 1; i >= 0; i--) {
   ctx.fillText(heart.emoji, heart.x, heart.y + 24);
   heart.x -= heart.speed;
 
-  if (checkCollision(player, heart)) {
+  if (checkCollision(player, heart, 28, 28)) {
     if (lives < 5) lives++;  // limite massimo 5
     playBonusSound(); // riutilizziamo il suono
     hearts.splice(i, 1);
@@ -531,12 +565,12 @@ for (let i = hearts.length - 1; i >= 0; i--) {
 }
 
 
-function checkCollision(r1, r2) {
+function checkCollision(r1, r2, offsetX = 0, offsetY = 0, width = 24, height = 24) {
   return (
-    r1.x < r2.x + 24 &&
-    r1.x + r1.width > r2.x &&
-    r1.y < r2.y + 24 &&
-    r1.y + r1.height > r2.y
+    r1.x < r2.x + offsetX + width &&
+    r1.x + r1.width > r2.x + offsetX &&
+    r1.y < r2.y + offsetY + height &&
+    r1.y + r1.height > r2.y + offsetY
   );
 }
 
@@ -655,7 +689,7 @@ html += "</ol><button onclick=\"document.getElementById('classificaContainer').s
     <p><strong>${nomeGiocatore}</strong></p>
     <p>Hai totalizzato: <strong>${score}</strong> punti</p>
     <p>Effettua uno screen e taggaci, o invialo alla nostra pagina Instagram<br>
-    per scoprire se hai vinto l’omaggio snack & bevanda!</p>
+    per confermare il tuo punteggio!</p>
   `;
 
   document.getElementById("gameOverScreen").classList.remove("hidden");
@@ -709,7 +743,7 @@ function mostraMessaggio(testo) {
 }
 
 function generaOrologioBonus() {
-  if (Math.random() < 1.00) { // 25% di possibilità
+  if (Math.random() < 0.30) { // 50% di possibilità
     clocks.push({
       x: canvas.width + Math.random() * 300,
       y: Math.random() * (canvas.height - 24),
@@ -723,3 +757,4 @@ function contieneParoleOffensive(nome) {
   const nomeLower = nome.toLowerCase();
   return paroleVietate.some(parola => nomeLower.includes(parola));
 }
+

@@ -743,7 +743,7 @@ function mostraMessaggio(testo) {
 }
 
 function generaOrologioBonus() {
-  if (Math.random() < 0.30) { // 50% di possibilità
+  if (Math.random() < 10.0) { // 50% di possibilità
     clocks.push({
       x: canvas.width + Math.random() * 300,
       y: Math.random() * (canvas.height - 24),

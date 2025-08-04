@@ -310,8 +310,8 @@ if (soundEnabled) {
 
  
 
-  for (let i = 0; i < 7; i++) spawnItem();
-  for (let i = 0; i < 10; i++) spawnFire();
+  for (let i = 0; i < 8; i++) spawnItem();
+  for (let i = 0; i < 6; i++) spawnFire();
 
   gameTimer =45;
   clearInterval(timerInterval);
@@ -345,7 +345,7 @@ function spawnFire() {
     x: canvas.width + Math.random() * 300,
     y: Math.random() * (canvas.height - 24),
     emoji: fireEmoji,
-    speed: 3.5
+    speed: 2.5
   });
 }
 
